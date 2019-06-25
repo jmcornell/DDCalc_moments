@@ -154,7 +154,62 @@ for i_bin in range(1,DDCalc.Bins(detector)+1):
 			   (i_bin, DDCalc.BinSignal(detector, i_bin), DDCalc.BinEvents(detector, i_bin), DDCalc.BinBackground(detector, i_bin)))
 print("Log(likelihood):\t\t%.5e" % DDCalc.LogLikelihood(detector))
 print("********************************************************************************")
+print("")
 # ****************************************************************************************************************
+
+# **************************************************************************************************************** 
+# Example 4: CRESST (2017) analysis, as before but allowing for poles in the non-relativistic operator Wilson 
+#            coefficients. 
+
+detector = DDCalc.InitExperiment('CRESST_II')			# Initalize the CRESST_II detector.
+mDM = 3.0                          	# DM Mass in GeV.
+DM_spin = 0.5						    # DM Spin.
+
+DDCalc.SetWIMP_NREFT_CPT(wimp, mDM, DM_spin)
+# This defines a WIMP within the non-relativistic effective theory of DM-nucleon interactions, with a given mass in [GeV] and spin.
+# Initially, all the couplings corresponding to the various operators are set to zero.
+
+# The operator coefficients are set by DDCalc::SetWIMP_NREFT_CPT(WIMP, OpIndex, tau, value).
+#    tau is an integer, with 0 corresponding to a proton operator, and 1 to a neutron operator.
+#    value specifies the operator coefficient corresponding to OpIndex and tau, in units [GeV^(-2)].
+#
+# For magnetic/electric dipole DM, the relevant relationships between the WC c(q^2), as defined in 1707.06998
+# and c used in DDCalc are:
+#
+# c1(q^2) = c1 + c100 q^2
+# c2(q^2) = c2
+# c3(q^2) = c3
+# c4(q^2) = c4 + c104 q^2
+# c5(q^2) = c5 + c21/q^2
+# c6(q^2) = c6 + c13/(q^2 + m_pi^2) + c14/(q^2 + m_eta^2) + c15 q^2/(q^2 + m_pi^2) + c16 q^2/(q^2 + m_eta^2) + c22/q^2
+# c7(q^2) = c7
+# c8(q^2) = c8
+# c9(q^2) = c9
+# c10(q^2) = c10 + c17/(q^2 + m_pi^2) + c18/(q^2 + m_eta^2) + c19 q^2/(q^2 + m_pi^2) + c20 q^2/(q^2 + m_eta^2)
+# c11(q^2) = c11 + c23/q^2
+# c12(q^2) = c12
+#
+DDCalc.SetNRCoefficient(wimp, 11, 0, 1.5e-4)	# This sets the proton part of O_11 to 1.5e-4 GeV^(-2).
+DDCalc.SetNRCoefficient(wimp, 11, 1, 3.5e-4) # This sets the neutron part of O_11 to 3.5e-4 GeV^(-2).
+DDCalc.CalcRates(detector,wimp,halo) 	# This performs the actual calculation of the rates.
+
+
+print("********************************************************************************")
+print("Example 4: CRESST (2017) analysis, as before but allowing for poles in the")
+print("           non-relativistic operator Wilson coefficients.");
+print("mDM       = %.5e GeV" % mDM)
+print("DM spin   = %.5e" % DM_spin)
+print("")
+print("\t\tExpected signal\t\tObserved\tExpected background")
+print("All bins\t%.5e\t\t%d\t\t%.5e" % \
+				  (DDCalc.Signal(detector), DDCalc.Events(detector), DDCalc.Background(detector)))
+for i_bin in range(1,DDCalc.Bins(detector)+1):
+   print("Bin %d\t\t%.5e\t\t%d\t\t%.5e" % \
+	        (i_bin, DDCalc.BinSignal(detector, i_bin), DDCalc.BinEvents(detector, i_bin), DDCalc.BinBackground(detector, i_bin)))
+print("Log(likelihood):\t\t%.5e" % DDCalc.LogLikelihood(detector))
+print("********************************************************************************")
+# **************************************************************************************************************** */
+
 
 DDCalc.FreeAll() # Clean up all the objects
 
